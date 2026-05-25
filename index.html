@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HimiTrace - Pig Co-Farming & Traceability Platform</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-icon">🐷</span>
+                <div class="logo-text">
+                    <h1>HimiTrace</h1>
+                    <p>Smart Pig Co-Farming</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-status-card" id="userStatusCard">
+                    <span class="status-dot"></span>
+                    <span class="user-info-text">Đang hoạt động: <strong>Khách vãng lai</strong></span>
+                    <button class="btn btn-sm btn-outline-danger" id="logoutBtn" style="display: none;">Đăng xuất</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="traceability">
+                <span class="tab-icon">🔍</span> Truy xuất nguồn gốc
+            </button>
+            <button class="tab-btn" data-tab="user-portal">
+                <span class="tab-icon">💼</span> Cổng người nuôi & Market
+            </button>
+            <button class="tab-btn" data-tab="admin-portal" id="adminTabBtn">
+                <span class="tab-icon">🚜</span> Quản lý Farm (Admin)
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- TAB 1: TRUY XUẤT NGUỒN GỐC (PUBLIC) -->
+            <section class="tab-section active" id="traceabilitySection">
+                <div class="card search-card">
+                    <div class="search-header">
+                        <h2>Truy xuất nguồn gốc sản phẩm Blockchain</h2>
+                        <p>Nhập mã thẻ tai của Heo hoặc mã định danh Cây trồng để truy xuất nguồn gốc minh bạch từ mạng lưới Polygon Blockchain.</p>
+                    </div>
+                    <div class="search-box-wrapper">
+                        <input type="text" id="traceQueryInput" placeholder="Ví dụ: A012507260AA hoặc A0103250726..." autocomplete="off">
+                        <button class="btn btn-primary" id="btnTraceSubmit">🔍 Truy xuất</button>
+                    </div>
+                    <div class="quick-examples">
+                        <span>Mẫu test nhanh:</span>
+                        <button class="example-tag" data-code="A012507260AA">A012507260AA (Heo giống đực)</button>
+                        <button class="example-tag" data-code="A0103250726">A0103250726 (Cây Sầu Riêng)</button>
+                    </div>
+                </div>
+
+                <!-- Traceability Result Display (Hidden initially) -->
+                <div id="traceResultContainer" style="display: none;">
+                    <div class="grid-2col">
+                        
+                        <!-- Left Side: Live Stream & Visuals -->
+                        <div class="left-panel">
+                            <!-- Live Camera Widget -->
+                            <div class="camera-stream-wrapper">
+                                <div class="stream-badge-live">LIVE</div>
+                                <div class="stream-badge-pen" id="streamPenName">Chuồng số 12</div>
+                                <div class="stream-overlay-metrics">
+                                    <div class="metric-item">🌡️ <span id="streamTemp">27.8</span>°C</div>
+                                    <div class="metric-item">💧 <span id="streamHum">68</span>%</div>
+                                </div>
+                                <div class="video-container">
+                                    <!-- Simulated video or canvas -->
+                                    <div class="simulated-camera" id="simulatedCamera">
+                                        <div class="scanline"></div>
+                                        <div class="lens-glare"></div>
+                                        <div class="pig-avatar-wrapper" id="pigAvatarWrapper">
+                                            <span class="pig-emoji" id="visualEmoji">🐷</span>
+                                            <div class="visual-tag-code" id="visualTagCode">A012507260AA</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="camera-controls">
+                                    <button class="btn btn-icon" id="btnCameraMute" title="Bật/Tắt âm thanh">🔊</button>
+                                    <span class="camera-desc">Góc quay rộng (Pen-based stream) - Độ trễ: &lt; 0.5s</span>
+                                </div>
+                            </div>
+
+                            <!-- Blockchain Integrity Card -->
+                            <div class="card blockchain-card">
+                                <div class="bc-header">
+                                    <span class="bc-badge">Trustless Ledger</span>
+                                    <h3>Chứng nhận Blockchain Polygon</h3>
+                                </div>
+                                <div class="bc-body">
+                                    <p class="hash-text">Mã giao dịch (Tx): <code id="bcTxHash">0x7d8a9e2f...</code></p>
+                                    <p class="hash-text">Block Number: <code id="bcBlockNum">1827394</code></p>
+                                    <div class="bc-stamp-success">
+                                        <span class="check-icon">✓</span> Dữ liệu hợp lệ & không thể sửa đổi
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Details Tabs -->
+                        <div class="right-panel">
+                            <div class="card detail-card">
+                                <div class="detail-header">
+                                    <span class="detail-category-badge" id="detailCategoryBadge">Vật nuôi (Heo giống)</span>
+                                    <h3 id="detailTitleName">Heo giống Ủn Ỉn A1</h3>
+                                    <p class="detail-code">ID: <strong id="detailCodeText">A012507260AA</strong></p>
+                                </div>
+                                
+                                <div class="detail-grid">
+                                    <div class="info-box">
+                                        <span class="info-label">Ngày sinh/trồng</span>
+                                        <span class="info-value" id="detailDobText">25/07/2026</span>
+                                    </div>
+                                    <div class="info-box">
+                                        <span class="info-label">Giới tính/Loại</span>
+                                        <span class="info-value" id="detailGenderText">Đực</span>
+                                    </div>
+                                    <div class="info-box">
+                                        <span class="info-label">Ô nuôi/Vườn</span>
+                                        <span class="info-value" id="detailPenText">Pen-12</span>
+                                    </div>
+                                    <div class="info-box">
+                                        <span class="info-label">Định giá trị</span>
+                                        <span class="info-value text-gold" id="detailPriceText">1,000,000 VNĐ</span>
+                                    </div>
+                                </div>
+
+                                <div class="owner-box mt-3">
+                                    <span class="info-label">Chủ sở hữu hiện tại:</span>
+                                    <span class="owner-name" id="detailOwnerText">Hương Giang (012345678910)</span>
+                                </div>
+
+                                <!-- Detail Sub Tabs (Pedigree, Timeline, Growth Chart) -->
+                                <div class="sub-tab-container mt-4">
+                                    <div class="sub-tabs">
+                                        <button class="sub-tab-btn active" data-subtab="pedigree" id="subtabPedigreeBtn">Cây phả hệ</button>
+                                        <button class="sub-tab-btn" data-subtab="timeline">Nhật ký chăn nuôi</button>
+                                        <button class="sub-tab-btn" data-subtab="growth">Biểu đồ tăng trưởng</button>
+                                    </div>
+
+                                    <!-- Sub Tab Content 1: Pedigree Tree -->
+                                    <div class="sub-tab-content active" id="subtab-pedigree">
+                                        <div class="pedigree-tree-wrapper">
+                                            <div class="tree-node parent-node clickable-node" id="fatherNode" data-id="PIG-BOAR-001">
+                                                <span class="node-icon">🐗</span>
+                                                <span class="node-label">Bố (Boar)</span>
+                                                <strong id="fatherCode">PIG-BOAR-001</strong>
+                                            </div>
+                                            <div class="tree-node parent-node clickable-node" id="motherNode" data-id="PIG-SOW-045">
+                                                <span class="node-icon">🐖</span>
+                                                <span class="node-label">Mẹ (Sow)</span>
+                                                <strong id="motherCode">PIG-SOW-045</strong>
+                                            </div>
+                                            <div class="tree-connector"></div>
+                                            <div class="tree-node child-node">
+                                                <span class="node-icon" id="childIcon">🐷</span>
+                                                <span class="node-label">Heo Con</span>
+                                                <strong id="childCode">A012507260AA</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sub Tab Content 2: Timeline -->
+                                    <div class="sub-tab-content" id="subtab-timeline">
+                                        <ul class="timeline" id="timelineList">
+                                            <!-- Dynmically filled -->
+                                        </ul>
+                                    </div>
+
+                                    <!-- Sub Tab Content 3: Growth Chart -->
+                                    <div class="sub-tab-content" id="subtab-growth">
+                                        <div class="chart-container">
+                                            <canvas id="growthChartCanvas"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- TAB 2: USER PORTAL & MARKETPLACE -->
+            <section class="tab-section" id="user-portalSection">
+                
+                <!-- Login Box (If not logged in) -->
+                <div class="card login-card" id="userLoginBox">
+                    <h2>Đăng nhập Hệ thống Người nuôi</h2>
+                    <p>Vui lòng đăng nhập tài khoản của bạn để quản lý tài sản, chuyển quyền sở hữu hoặc mua bán trên sàn giao dịch.</p>
+                    <div class="quick-login-grid mt-4">
+                        <div class="quick-login-card" onclick="quickLogin('usera')">
+                            <h3>👤 User A</h3>
+                            <p>Chủ sở hữu ban đầu</p>
+                            <span class="cccd-badge">CCCD: 012345678910</span>
+                            <button class="btn btn-sm btn-primary mt-3">Đăng nhập nhanh</button>
+                        </div>
+                        <div class="quick-login-card" onclick="quickLogin('userb')">
+                            <h3>👤 User B</h3>
+                            <p>Nhà đầu tư / Người mua</p>
+                            <span class="cccd-badge">CCCD: 987654321098</span>
+                            <button class="btn btn-sm btn-primary mt-3">Đăng nhập nhanh</button>
+                        </div>
+                    </div>
+                    <div class="divider">Hoặc đăng nhập thủ công</div>
+                    <div class="login-form">
+                        <div class="form-group">
+                            <label for="loginUsername">Tên đăng nhập</label>
+                            <input type="text" id="loginUsername" placeholder="Nhập tên đăng nhập...">
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Mật khẩu</label>
+                            <input type="password" id="loginPassword" placeholder="Nhập mật khẩu...">
+                        </div>
+                        <button class="btn btn-primary btn-block mt-3" id="btnLoginSubmit">Đăng nhập</button>
+                    </div>
+                </div>
+
+                <!-- User Portal (Visible when logged in as User) -->
+                <div id="userPortalContainer" style="display: none;">
+                    <!-- User Header Metrics -->
+                    <div class="user-dashboard-header">
+                        <div class="user-profile-info">
+                            <h2 id="userNameDisplay">Chào User A!</h2>
+                            <p>Số Căn cước công dân (CCCD): <strong id="userCccdDisplay">012345678910</strong></p>
+                        </div>
+                        <div class="user-wallet-card">
+                            <span class="wallet-label">Số dư ví (Cash)</span>
+                            <h3 id="userCashDisplay">5,000,000 VNĐ</h3>
+                            <button class="btn btn-sm btn-gold mt-2" id="btnOpenDepositModal">⚡ Nạp tiền nhanh (VietQR)</button>
+                        </div>
+                    </div>
+
+                    <!-- Layout: My Assets & Marketplace -->
+                    <div class="grid-2col mt-4">
+                        <!-- My Assets -->
+                        <div class="assets-panel">
+                            <div class="card h-100">
+                                <h3>📂 Tài sản của tôi</h3>
+                                <p class="section-desc">Danh sách các con heo và cây trồng do bạn làm chủ sở hữu.</p>
+                                <div class="asset-list" id="myAssetList">
+                                    <!-- Dynamic assets load here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Marketplace -->
+                        <div class="market-panel">
+                            <div class="card h-100">
+                                <h3>🛒 Sàn giao dịch JockerFarm</h3>
+                                <p class="section-desc">Mua bán trao đổi heo giống và cây trồng với người dùng khác. Phí sàn: 2%.</p>
+                                <div class="market-list" id="marketList">
+                                    <!-- Dynamic marketplace items load here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- TAB 3: ADMIN PORTAL -->
+            <section class="tab-section" id="admin-portalSection">
+                
+                <!-- Admin Lock State -->
+                <div class="card login-card" id="adminLockBox">
+                    <h2>Đăng nhập Quản trị Trang trại</h2>
+                    <p>Tính năng này chỉ dành cho chủ trang trại (Admin) để đăng ký heo con và cập nhật thông tin chăn nuôi.</p>
+                    <div class="login-form mt-4" style="max-width: 400px; margin: 0 auto;">
+                        <div class="form-group">
+                            <label for="adminUsername">Tên đăng nhập Admin</label>
+                            <input type="text" id="adminUsername" value="admin">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminPassword">Mật khẩu</label>
+                            <input type="password" id="adminPassword" placeholder="Nhập mật khẩu...">
+                        </div>
+                        <button class="btn btn-primary btn-block mt-3" id="btnAdminLoginSubmit">Đăng nhập Admin</button>
+                    </div>
+                </div>
+
+                <!-- Admin Dashboard (Visible when logged in as Admin) -->
+                <div id="adminDashboardContainer" style="display: none;">
+                    <div class="admin-grid">
+                        
+                        <!-- Col 1: Khai sinh heo con -->
+                        <div class="admin-panel-left">
+                            <div class="card">
+                                <h3>🐷 Khai sinh Heo con mới sinh</h3>
+                                <p class="section-desc">Đăng ký tự động sau khi heo nái đẻ 1 ngày. Mã số tai sẽ được tự động thiết lập.</p>
+                                
+                                <form id="birthRegistrationForm">
+                                    <div class="form-group">
+                                        <label for="birthDate">Ngày sinh</label>
+                                        <input type="date" id="birthDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="fatherSelect">Heo Bố (Boar)</label>
+                                        <select id="fatherSelect">
+                                            <option value="PIG-BOAR-001">PIG-BOAR-001 (Duroc Mỹ)</option>
+                                            <option value="PIG-BOAR-002">PIG-BOAR-002 (Landrace Đan Mạch)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="motherSelect">Heo Mẹ (Sow)</label>
+                                        <select id="motherSelect">
+                                            <option value="PIG-SOW-045">PIG-SOW-045 (Yorkshire Lứa 3)</option>
+                                            <option value="PIG-SOW-088">PIG-SOW-088 (Landrace Lứa 2)</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid-2col-gap form-row">
+                                        <div class="form-group">
+                                            <label for="totalPiglets">Tổng số heo con</label>
+                                            <input type="number" id="totalPiglets" value="6" min="1" max="20" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="malePiglets">Số heo đực</label>
+                                            <input type="number" id="malePiglets" value="3" min="0" max="20" required>
+                                        </div>
+                                    </div>
+                                    <div class="birth-note" id="birthRegNote">
+                                        Hệ thống sẽ tạo: 3 Đực & 3 Cái.
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-block mt-3">⚡ Đăng ký & Sinh mã tự động</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Col 2: Quản lý Farm & Danh sách -->
+                        <div class="admin-panel-right">
+                            <div class="card">
+                                <div class="admin-list-header">
+                                    <h3>📊 Quản lý Danh sách Vật nuôi & Cây trồng</h3>
+                                    <div class="filter-buttons">
+                                        <button class="btn btn-xs btn-outline-primary active" id="btnFilterAll">Tất cả</button>
+                                        <button class="btn btn-xs btn-outline-primary" id="btnFilterPigs">Heo giống</button>
+                                        <button class="btn btn-xs btn-outline-primary" id="btnFilterPlants">Cây trồng</button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive mt-3">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã Code</th>
+                                                <th>Tên/Phân loại</th>
+                                                <th>Ngày tạo</th>
+                                                <th>Cân nặng / TT</th>
+                                                <th>Chủ sở hữu</th>
+                                                <th>Định giá</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="adminTableBody">
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>© 2026 HimiTrace Platform. Phát triển cho dự án JockerFarm Pig Co-Farming.</p>
+            <p>Powered by HimiTek Blockchain Technology.</p>
+        </footer>
+
+    </div>
+
+    <!-- MODAL 1: NẠP TIỀN VIETQR -->
+    <div class="modal" id="depositModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚡ Nạp tiền ví Cash (Chuyển khoản VietQR)</h3>
+                <button class="close-modal-btn" onclick="closeModal('depositModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="depositAmount">Số tiền nạp (VNĐ)</label>
+                    <input type="number" id="depositAmount" value="2000000" min="50000" step="50000" oninput="updateVietQR()">
+                </div>
+                
+                <div class="vietqr-box mt-3">
+                    <!-- VietQR Image dynamically generated -->
+                    <img id="vietQrImg" src="" alt="Mã VietQR nạp tiền">
+                    <div class="vietqr-info text-center mt-2">
+                        <p>Ngân hàng: <strong>MB Bank (Ngân hàng Quân Đội)</strong></p>
+                        <p>Số tài khoản: <strong>9999123456789</strong></p>
+                        <p>Tên tài khoản: <strong>HIMITRACE JOCKERFARM</strong></p>
+                        <p>Số tiền: <strong class="text-gold" id="vietQrAmountText">2,000,000 VNĐ</strong></p>
+                        <p>Nội dung CK: <code id="vietQrContentText">NAP_USERA</code></p>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3">
+                    💡 <strong>Test Flow:</strong> Quét mã để kiểm tra thông tin chuyển khoản VietQR thật. Nhấn nút dưới đây để giả lập nạp tiền thành công ngay lập tức.
+                </div>
+
+                <button class="btn btn-gold btn-block mt-3" id="btnSimulateDepositSuccess">✓ Xác nhận đã chuyển khoản thành công</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: UPDATE ASSET LOGS (ADMIN ONLY) -->
+    <div class="modal" id="updateAssetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🛠️ Cập nhật Thông tin & Nhật ký</h3>
+                <button class="close-modal-btn" onclick="closeModal('updateAssetModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4 id="modalUpdateTitle">Mã: A012507260AA</h4>
+                <input type="hidden" id="modalUpdateCode">
+                <input type="hidden" id="modalUpdateType">
+
+                <!-- Dynamic Update Sections depending on type -->
+                <div class="sub-tab-container mt-3">
+                    <div class="sub-tabs">
+                        <button class="sub-tab-btn active" data-subtab="update-basic" onclick="switchUpdateSubTab('update-basic')">Chỉ số & Giá</button>
+                        <button class="sub-tab-btn" data-subtab="update-logs" onclick="switchUpdateSubTab('update-logs')">Lịch sử & Nhật ký</button>
+                    </div>
+
+                    <!-- Update Basic Fields -->
+                    <div class="sub-tab-content active" id="update-basic-content">
+                        <div class="form-group mt-3">
+                            <label for="updateWeightOrStatus">Cân nặng (kg) / Trạng thái hiện tại</label>
+                            <input type="text" id="updateWeightOrStatus" placeholder="Nhập số cân nặng mới hoặc tình trạng cây...">
+                        </div>
+                        <div class="form-group">
+                            <label for="updatePenOrGarden">Ô nuôi / Vị trí chuồng</label>
+                            <input type="text" id="updatePenOrGarden" placeholder="Ví dụ: Pen-12, Vườn C3...">
+                        </div>
+                        <div class="form-group">
+                            <label for="updatePrice">Định giá trị sản phẩm (VNĐ)</label>
+                            <input type="number" id="updatePrice" placeholder="Nhập giá mới...">
+                        </div>
+                    </div>
+
+                    <!-- Add Vaccination / Fertilizer Log -->
+                    <div class="sub-tab-content" id="update-logs-content">
+                        <div id="logInputPigSection">
+                            <h5 class="mt-3">Thêm Nhật ký tiêm chủng (Heo)</h5>
+                            <div class="form-group">
+                                <label for="vaccineName">Tên Vaccine</label>
+                                <input type="text" id="vaccineName" placeholder="Ví dụ: Dịch tả heo, Tai xanh...">
+                            </div>
+                            <div class="form-group">
+                                <label for="vaccineVet">Bác sĩ Thú y</label>
+                                <input type="text" id="vaccineVet" value="Dr. Minh Nguyễn">
+                            </div>
+                        </div>
+
+                        <div id="logInputPlantSection" style="display: none;">
+                            <h5 class="mt-3">Thêm Nhật ký bón phân/chăm sóc (Cây)</h5>
+                            <div class="form-group">
+                                <label for="fertilizerType">Loại phân bón / thuốc bảo vệ</label>
+                                <input type="text" id="fertilizerType" placeholder="Ví dụ: Phân hữu cơ vi sinh, tưới gốc...">
+                            </div>
+                            <div class="form-group">
+                                <label for="fertilizerQty">Liều lượng</label>
+                                <input type="text" id="fertilizerQty" placeholder="Ví dụ: 0.5kg/gốc">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block mt-4" id="btnSaveUpdateAsset">✓ Lưu cập nhật</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: XEM CHI TIẾT BỐ MẸ PHẢ HỆ -->
+    <div class="modal" id="parentDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔍 Chi tiết Heo Bố Mẹ (Phả hệ)</h3>
+                <button class="close-modal-btn" onclick="closeModal('parentDetailsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="parent-profile text-center mb-3">
+                    <span class="parent-avatar-large" id="parentModalAvatar">🐗</span>
+                    <h3 class="mt-2" id="parentModalCode">PIG-BOAR-001</h3>
+                    <p class="badge bg-primary" id="parentModalRole">Heo giống Bố</p>
+                </div>
+                <div class="table-responsive">
+                    <table class="info-table-details">
+                        <tr>
+                            <td><strong>Giống gốc:</strong></td>
+                            <td id="parentModalBreed">Duroc Nhập khẩu Mỹ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ngày tuổi:</strong></td>
+                            <td id="parentModalAge">24 tháng tuổi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tình trạng sức khỏe:</strong></td>
+                            <td><span class="text-success">✓ Đạt chuẩn sinh sản cao</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Số lứa đẻ phối giống:</strong></td>
+                            <td id="parentModalOffspring">12 lứa giống</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="timeline-parent-section mt-3">
+                    <h5>Lịch sử tiêm chủng của bố/mẹ:</h5>
+                    <ul class="timeline" id="parentModalTimeline" style="padding-left: 10px;">
+                        <li>
+                            <span class="timeline-date">12/01/2026</span>
+                            <span class="timeline-title">Vaccine Tai Xanh (PRRS)</span>
+                            <p class="timeline-desc">Tiêm định kỳ nhắc lại - Đạt chuẩn</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Application Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
