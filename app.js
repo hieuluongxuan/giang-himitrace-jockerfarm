@@ -1,5 +1,5 @@
 /* ==========================================================================
-   HimiTrace Application Logic - LocalStorage State & Business Logic
+   HimiTraceGiang Application Logic - LocalStorage State & Business Logic
    ========================================================================== */
 
 // --- SEED DATA & STATE INITIALIZATION ---
@@ -445,7 +445,7 @@ function renderTimeline(asset, isPig) {
         }
     } else {
         // Plant timeline
-        addTimelineItem(timelineList, asset.datePlanted, "Sự kiện: Xuống giống gieo trồng", `Cây giống được đưa ra đất trồng thực tế tại ô vườn C3. Hệ thống HimiTrace ghi nhận.`, "Kỹ sư nông nghiệp");
+        addTimelineItem(timelineList, asset.datePlanted, "Sự kiện: Xuống giống gieo trồng", `Cây giống được đưa ra đất trồng thực tế tại ô vườn C3. Hệ thống HimiTraceGiang ghi nhận.`, "Kỹ sư nông nghiệp");
         
         if (asset.fertilizerSchedule) {
             asset.fertilizerSchedule.forEach(log => {
